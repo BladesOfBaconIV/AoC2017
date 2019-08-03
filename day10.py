@@ -2,11 +2,6 @@ from collections import deque
 from functools import reduce
 from operator import xor
 
-with open('input.txt') as f:
-    line = f.readline()
-    lengths_1 = map(int, line.split(','))
-    lengths_2 = list(map(ord, line)) + [17, 31, 73, 47, 23]
-
 def reverse_slice(q, l):
     ns = []
     for _ in range(l):
@@ -24,11 +19,23 @@ def run(q, lengths, N=1):
             skip += 1
     q.rotate(overshoot%256)
 
-nums_1, nums_2 = deque(range(256)), deque(range(256))
 
-run(nums_1, lengths_1)
-run(nums_2, lengths_2, 64)
+def knot_hash(input):
+    nums = deque(range(256))
+    ls = list(map(ord, input)) + [17, 31, 73, 47, 23]
+    run(nums, ls, 64)
+    return ''.join(f'{reduce(xor, [nums.popleft() for _ in range(16)]):02x}' for _ in range(16))
 
-hash = ''.join(f'{reduce(xor, [nums_2.popleft() for _ in range(16)]):02x}' for _ in range(16))
 
-print(f'Part 1: {nums_1.popleft() * nums_1.popleft()}, Part 2: {hash}')
+def main():
+    with open('input.txt') as f:
+        line = f.readline()
+        lengths_1 = map(int, line.split(','))
+
+    nums_1 = deque(range(256))
+    run(nums_1, lengths_1)
+    
+    print(f'Part 1: {nums_1.popleft() * nums_1.popleft()}, Part 2: {knot_hash(line)}')
+
+if __name__ == '__main__':
+    main()
